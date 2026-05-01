@@ -600,7 +600,7 @@ if stock_seleccionado:
     ax.plot(df_rendimientos[stock_seleccionado].index, df_rendimientos[stock_seleccionado] * 100, label='Retornos diarios (%)', color='#34edf3', alpha=0.5)
 
     ax.plot(df_rendimientos.index, rolling_var_historico(df_rendimientos[stock_seleccionado], 0.95, 252) * 100 , label='95% Rolling VaR Histórico', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, rolling_var_normal(df_rendimientos[stock_seleccionado], 0.95, 252) * 100, label='95% Rolling VaR Paramétrico', color="#440351", linewidth=2)
+    ax.plot(df_rendimientos.index, rolling_var_normal(df_rendimientos[stock_seleccionado], 0.95, 252) * 100, label='95% Rolling VaR Paramétrico', color="#C252E1", linewidth=2)
 
     #Configurar etiquetas y leyenda
     ax.set_title(f'95% Rolling VaR - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
@@ -619,7 +619,7 @@ if stock_seleccionado:
     ax.plot(df_rendimientos[stock_seleccionado].index, df_rendimientos[stock_seleccionado] * 100, label='Retornos diarios (%)', color='#34edf3', alpha=0.5)
 
     ax.plot(df_rendimientos.index, rolling_es_historico(df_rendimientos[stock_seleccionado], 0.95, 252) * 100 , label='95% Rolling ES Histórico', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, rolling_es_normal(df_rendimientos[stock_seleccionado], 0.95, 252) * 100, label='95% Rolling ES Paramétrico', color="#440351", linewidth=2)
+    ax.plot(df_rendimientos.index, rolling_es_normal(df_rendimientos[stock_seleccionado], 0.95, 252) * 100, label='95% Rolling ES Paramétrico', color="#C252E1", linewidth=2)
 
     #Configurar etiquetas y leyenda
     ax.set_title(f'95% Rolling ES - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
@@ -637,7 +637,7 @@ if stock_seleccionado:
     ax.plot(df_rendimientos[stock_seleccionado].index, df_rendimientos[stock_seleccionado] * 100, label='Retornos diarios (%)', color='#34edf3', alpha=0.5)
 
     ax.plot(df_rendimientos.index, rolling_var_historico(df_rendimientos[stock_seleccionado], 0.99, 252) * 100 , label='95% Rolling VaR Histórico', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, rolling_var_normal(df_rendimientos[stock_seleccionado], 0.99, 252) * 100, label='95% Rolling VaR Paramétrico', color="#440351", linewidth=2)
+    ax.plot(df_rendimientos.index, rolling_var_normal(df_rendimientos[stock_seleccionado], 0.99, 252) * 100, label='95% Rolling VaR Paramétrico', color="#C252E1", linewidth=2)
 
     #Configurar etiquetas y leyenda
     ax.set_title(f'99% Rolling VaR - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
@@ -656,7 +656,7 @@ if stock_seleccionado:
     ax.plot(df_rendimientos[stock_seleccionado].index, df_rendimientos[stock_seleccionado] * 100, label='Retornos diarios (%)', color='#34edf3', alpha=0.5)
 
     ax.plot(df_rendimientos.index, rolling_es_historico(df_rendimientos[stock_seleccionado], 0.99, 252) * 100 , label='95% Rolling ES Histórico', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, rolling_es_normal(df_rendimientos[stock_seleccionado], 0.99, 252) * 100, label='95% Rolling ES Paramétrico', color="#440351", linewidth=2)
+    ax.plot(df_rendimientos.index, rolling_es_normal(df_rendimientos[stock_seleccionado], 0.99, 252) * 100, label='95% Rolling ES Paramétrico', color="#C252E1", linewidth=2)
 
     #Configurar etiquetas y leyenda
     ax.set_title(f'99% Rolling ES - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
