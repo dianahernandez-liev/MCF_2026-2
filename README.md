@@ -29,10 +29,10 @@ Representa el rendimiento promedio diario. Sin embargo, en gestión de riesgo ti
 
 El sesgo mide la asimetría de la distribución:
 
-\[
+
 $\beta = \frac{E[(X - E[X])^3]}{(E[(X - E[X])^2])^{3/2}}$
 
-\]
+
 - Sesgo positivo: cola derecha más pesada (ganancias extremas)
 - Sesgo negativo: cola izquierda más pesada (pérdidas extremas)
 
