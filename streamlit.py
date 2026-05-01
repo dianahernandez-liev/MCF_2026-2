@@ -766,7 +766,7 @@ if stock_seleccionado:
         if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_95_rolling.iloc[i]:
             contador_ += 1
     # Calcular porcentaje de violaciones
-    porcentaje_violaciones = (contador_ / len(sigma_VaR_95_rolling)) * 100
+    porcentaje_violaciones = (contador_ / len(sigma_VaR_95_rolling.dropna())) * 100
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{contador_}")
@@ -780,7 +780,7 @@ if stock_seleccionado:
         if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_99_rolling.iloc[i]:
             contador9 += 1
     # Calcular porcentaje de violaciones
-    porcentaje_violaciones = (contador9 / len(sigma_VaR_99_rolling)) * 100
+    porcentaje_violaciones = (contador9 / len(sigma_VaR_99_rolling.dropna())) * 100
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{contador9}")
