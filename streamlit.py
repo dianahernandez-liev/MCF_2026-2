@@ -534,65 +534,178 @@ if stock_seleccionado:
     for i in range(len(hVaR_95_rolling_percent)-1, -1, -1):
         if df_rendimientos[stock_seleccionado].iloc[i] < hVaR_99_rolling.iloc[i]:
             contador_2 += 1
-      # ============================================================
+    # ============================================================
     # INCISO E) EVALUACIÓN DE VIOLACIONES VaR Y ES
     # ============================================================
 
-    st.header("Inciso e) Evaluación de Violaciones del VaR y ES")
+    st.header(" Evaluación de Violaciones del VaR y ES")
+
+    st.markdown("""
+    <style>
+        .table-container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(16, 20, 46, 0.88);
+            color: #ccd6f6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .custom-table thead tr {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.18), rgba(0, 102, 255, 0.18));
+        }
+
+        .custom-table th {
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.35);
+            text-align: center;
+        }
+
+        .custom-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+            font-size: 14px;
+        }
+
+        .custom-table tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .custom-table tbody tr:hover {
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        .good-row td {
+            color: #8ef7c6;
+            font-weight: bold;
+        }
+
+        .bad-row td {
+            color: #ff9e9e;
+            font-weight: bold;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    def render_custom_table(df):
+        html = """
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+        """
+
+        for col in df.columns:
+            html += f"<th>{col}</th>"
+
+        html += """
+                    </tr>
+                </thead>
+                <tbody>
+        """
+
+        for _, row in df.iterrows():
+            porcentaje = float(str(row["Porcentaje de violaciones"]).replace("%", ""))
+
+            if porcentaje < 2.5:
+                clase_fila = "good-row"
+            else:
+                clase_fila = "bad-row"
+
+            html += f'<tr class="{clase_fila}">'
+            for val in row:
+                html += f"<td>{val}</td>"
+            html += "</tr>"
+
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
+
+        st.markdown(html, unsafe_allow_html=True)
+
 
     rend = df_rendimientos[stock_seleccionado].dropna()
     ventana = 252
 
     # ------------------------------------------------------------
-    # Funciones auxiliares
+    # FUNCIONES PARA CALCULAR VaR Y ES ROLLING
     # ------------------------------------------------------------
 
     def rolling_var_historico(serie, alpha, ventana=252):
         """
-        Calcula VaR histórico rolling.
-        Para alpha = 0.95 usa cuantíl 0.05.
-        Para alpha = 0.99 usa cuantíl 0.01.
+        VaR histórico rolling.
+        alpha = 0.95 usa cuantíl 0.05.
+        alpha = 0.99 usa cuantíl 0.01.
         """
         q = 1 - alpha
-        return serie.rolling(window=ventana).quantile(q).shift(1)
+        var = serie.rolling(window=ventana).quantile(q)
+
+        # shift(1) para que el VaR calculado con datos anteriores
+        # se compare con el rendimiento del día siguiente.
+        return var.shift(1)
 
 
     def rolling_es_historico(serie, alpha, ventana=252):
         """
-        Calcula ES histórico rolling.
-        ES es el promedio de los rendimientos menores o iguales al VaR
-        dentro de cada ventana.
+        ES histórico rolling.
+        Es el promedio de los rendimientos que están por debajo del VaR.
         """
         q = 1 - alpha
 
-        def es_func(x):
+        def calcular_es(x):
             var = np.quantile(x, q)
-            return x[x <= var].mean()
+            es = x[x <= var].mean()
+            return es
 
-        return serie.rolling(window=ventana).apply(es_func, raw=False).shift(1)
+        es = serie.rolling(window=ventana).apply(calcular_es, raw=False)
+
+        return es.shift(1)
 
 
     def rolling_var_normal(serie, alpha, ventana=252):
         """
-        Calcula VaR paramétrico rolling asumiendo distribución normal.
+        VaR paramétrico rolling asumiendo distribución normal.
         """
         media = serie.rolling(window=ventana).mean()
         sigma = serie.rolling(window=ventana).std()
-        q = norm.ppf(1 - alpha)
-        return (media + q * sigma).shift(1)
+
+        z = norm.ppf(1 - alpha)
+
+        var = media + z * sigma
+
+        return var.shift(1)
 
 
     def rolling_es_normal(serie, alpha, ventana=252):
         """
-        Calcula ES paramétrico rolling asumiendo distribución normal.
+        ES paramétrico rolling asumiendo distribución normal.
 
         Fórmula:
-        ES_alpha = media - sigma * phi(z_alpha)/(1-alpha)
+        ES = media - sigma * phi(z) / q
 
-        donde z_alpha = Phi^{-1}(1-alpha)
+        donde:
+        q = 1 - alpha
+        z = Phi^{-1}(q)
         """
         media = serie.rolling(window=ventana).mean()
         sigma = serie.rolling(window=ventana).std()
+
         q = 1 - alpha
         z = norm.ppf(q)
 
@@ -603,8 +716,13 @@ if stock_seleccionado:
 
     def calcular_violaciones(serie, medida_riesgo):
         """
-        Compara el rendimiento real contra la medida de riesgo.
-        Hay violación si rendimiento < VaR o rendimiento < ES.
+        Cuenta violaciones.
+
+        Hay violación si:
+
+        rendimiento observado < medida de riesgo
+
+        Esto aplica para VaR y ES.
         """
         datos = pd.concat([serie, medida_riesgo], axis=1).dropna()
         datos.columns = ["Rendimiento", "Medida_Riesgo"]
@@ -617,7 +735,7 @@ if stock_seleccionado:
 
 
     # ------------------------------------------------------------
-    # Cálculo para alpha = 0.95 y alpha = 0.99
+    # CÁLCULO DE VIOLACIONES PARA 95% Y 99%
     # ------------------------------------------------------------
 
     niveles_confianza = [0.95, 0.99]
@@ -683,16 +801,14 @@ if stock_seleccionado:
 
 
     # ------------------------------------------------------------
-    # Tabla final del inciso e)
+    # TABLA FINAL DEL INCISO E)
     # ------------------------------------------------------------
 
     tabla_violaciones = pd.DataFrame(resultados_violaciones)
 
     st.subheader("Tabla de violaciones VaR y ES")
-
-    st.dataframe(tabla_violaciones, use_container_width=True)
+    render_custom_table(tabla_violaciones)
 
     st.info(
-        "Una buena estimación debería generar un porcentaje de violaciones menor al 2.5%, "
-        "según la indicación del proyecto."
+        "Criterio del proyecto: una buena estimación genera un porcentaje de violaciones menor al 2.5%."
     )
