@@ -534,10 +534,6 @@ if stock_seleccionado:
     for i in range(len(hVaR_95_rolling_percent)-1, -1, -1):
         if df_rendimientos[stock_seleccionado].iloc[i] < hVaR_99_rolling.iloc[i]:
             contador_2 += 1
-    # ============================================================
-    # INCISO E) EVALUACIÓN DE VIOLACIONES VaR Y ES
-    # ============================================================
-
     st.header(" Evaluación de Violaciones del VaR y ES")
 
     st.markdown("""
@@ -550,7 +546,6 @@ if stock_seleccionado:
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,0.35);
         }
-
         .custom-table {
             width: 100%;
             border-collapse: collapse;
@@ -558,11 +553,9 @@ if stock_seleccionado:
             color: #ccd6f6;
             font-family: 'Courier New', monospace;
         }
-
         .custom-table thead tr {
             background: linear-gradient(90deg, rgba(0, 212, 255, 0.18), rgba(0, 102, 255, 0.18));
         }
-
         .custom-table th {
             color: #00d4ff;
             text-transform: uppercase;
@@ -572,35 +565,28 @@ if stock_seleccionado:
             border-bottom: 1px solid rgba(0, 212, 255, 0.35);
             text-align: center;
         }
-
         .custom-table td {
             padding: 12px;
             text-align: center;
             border-bottom: 1px solid rgba(0, 212, 255, 0.12);
             font-size: 14px;
         }
-
         .custom-table tbody tr:nth-child(even) {
             background: rgba(255, 255, 255, 0.03);
         }
-
         .custom-table tbody tr:hover {
             background: rgba(0, 212, 255, 0.08);
         }
-
         .good-row td {
             color: #8ef7c6;
             font-weight: bold;
         }
-
         .bad-row td {
             color: #ff9e9e;
             font-weight: bold;
         }
     </style>
     """, unsafe_allow_html=True)
-
-
     def render_custom_table(df):
         html = """
         <div class="table-container">
@@ -608,45 +594,31 @@ if stock_seleccionado:
                 <thead>
                     <tr>
         """
-
         for col in df.columns:
             html += f"<th>{col}</th>"
-
         html += """
                     </tr>
                 </thead>
                 <tbody>
         """
-
         for _, row in df.iterrows():
             porcentaje = float(str(row["Porcentaje de violaciones"]).replace("%", ""))
-
             if porcentaje < 2.5:
                 clase_fila = "good-row"
             else:
                 clase_fila = "bad-row"
-
             html += f'<tr class="{clase_fila}">'
             for val in row:
                 html += f"<td>{val}</td>"
             html += "</tr>"
-
         html += """
                 </tbody>
             </table>
         </div>
         """
-
         st.markdown(html, unsafe_allow_html=True)
-
-
     rend = df_rendimientos[stock_seleccionado].dropna()
     ventana = 252
-
-    # ------------------------------------------------------------
-    # FUNCIONES PARA CALCULAR VaR Y ES ROLLING
-    # ------------------------------------------------------------
-
     def rolling_var_historico(serie, alpha, ventana=252):
         """
         VaR histórico rolling.
@@ -655,114 +627,75 @@ if stock_seleccionado:
         """
         q = 1 - alpha
         var = serie.rolling(window=ventana).quantile(q)
-
         # shift(1) para que el VaR calculado con datos anteriores
         # se compare con el rendimiento del día siguiente.
         return var.shift(1)
-
-
     def rolling_es_historico(serie, alpha, ventana=252):
         """
         ES histórico rolling.
         Es el promedio de los rendimientos que están por debajo del VaR.
         """
         q = 1 - alpha
-
         def calcular_es(x):
             var = np.quantile(x, q)
             es = x[x <= var].mean()
             return es
-
         es = serie.rolling(window=ventana).apply(calcular_es, raw=False)
-
         return es.shift(1)
-
-
     def rolling_var_normal(serie, alpha, ventana=252):
         """
         VaR paramétrico rolling asumiendo distribución normal.
         """
         media = serie.rolling(window=ventana).mean()
         sigma = serie.rolling(window=ventana).std()
-
         z = norm.ppf(1 - alpha)
-
         var = media + z * sigma
-
         return var.shift(1)
-
-
     def rolling_es_normal(serie, alpha, ventana=252):
         """
         ES paramétrico rolling asumiendo distribución normal.
-
         Fórmula:
         ES = media - sigma * phi(z) / q
-
         donde:
         q = 1 - alpha
         z = Phi^{-1}(q)
         """
         media = serie.rolling(window=ventana).mean()
         sigma = serie.rolling(window=ventana).std()
-
         q = 1 - alpha
         z = norm.ppf(q)
-
         es = media - sigma * (norm.pdf(z) / q)
-
         return es.shift(1)
-
-
     def calcular_violaciones(serie, medida_riesgo):
         """
         Cuenta violaciones.
-
         Hay violación si:
-
         rendimiento observado < medida de riesgo
-
         Esto aplica para VaR y ES.
         """
         datos = pd.concat([serie, medida_riesgo], axis=1).dropna()
         datos.columns = ["Rendimiento", "Medida_Riesgo"]
-
         violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
         total = len(datos)
         porcentaje = (violaciones / total) * 100
-
         return violaciones, porcentaje, total
-
-
-    # ------------------------------------------------------------
-    # CÁLCULO DE VIOLACIONES PARA 95% Y 99%
-    # ------------------------------------------------------------
-
     niveles_confianza = [0.95, 0.99]
     resultados_violaciones = []
-
     for alpha in niveles_confianza:
-
         # VaR y ES histórico
         VaR_hist = rolling_var_historico(rend, alpha, ventana)
         ES_hist = rolling_es_historico(rend, alpha, ventana)
-
         # VaR y ES paramétrico normal
         VaR_norm = rolling_var_normal(rend, alpha, ventana)
         ES_norm = rolling_es_normal(rend, alpha, ventana)
-
         # Violaciones VaR histórico
         v_var_hist, p_var_hist, total_var_hist = calcular_violaciones(rend, VaR_hist)
-
         # Violaciones ES histórico
         v_es_hist, p_es_hist, total_es_hist = calcular_violaciones(rend, ES_hist)
-
         # Violaciones VaR normal
         v_var_norm, p_var_norm, total_var_norm = calcular_violaciones(rend, VaR_norm)
-
         # Violaciones ES normal
         v_es_norm, p_es_norm, total_es_norm = calcular_violaciones(rend, ES_norm)
-
         resultados_violaciones.append({
             "Nivel de confianza": f"{alpha:.1%}",
             "Método": "Histórico",
@@ -771,7 +704,6 @@ if stock_seleccionado:
             "Total evaluado": total_var_hist,
             "Porcentaje de violaciones": f"{p_var_hist:.2f}%"
         })
-
         resultados_violaciones.append({
             "Nivel de confianza": f"{alpha:.1%}",
             "Método": "Histórico",
@@ -780,7 +712,6 @@ if stock_seleccionado:
             "Total evaluado": total_es_hist,
             "Porcentaje de violaciones": f"{p_es_hist:.2f}%"
         })
-
         resultados_violaciones.append({
             "Nivel de confianza": f"{alpha:.1%}",
             "Método": "Paramétrico Normal",
@@ -789,7 +720,6 @@ if stock_seleccionado:
             "Total evaluado": total_var_norm,
             "Porcentaje de violaciones": f"{p_var_norm:.2f}%"
         })
-
         resultados_violaciones.append({
             "Nivel de confianza": f"{alpha:.1%}",
             "Método": "Paramétrico Normal",
@@ -798,17 +728,9 @@ if stock_seleccionado:
             "Total evaluado": total_es_norm,
             "Porcentaje de violaciones": f"{p_es_norm:.2f}%"
         })
-
-
-    # ------------------------------------------------------------
-    # TABLA FINAL DEL INCISO E)
-    # ------------------------------------------------------------
-
     tabla_violaciones = pd.DataFrame(resultados_violaciones)
-
     st.subheader("Tabla de violaciones VaR y ES")
     render_custom_table(tabla_violaciones)
-
     st.info(
         "Criterio del proyecto: una buena estimación genera un porcentaje de violaciones menor al 2.5%."
     )
