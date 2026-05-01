@@ -751,7 +751,7 @@ if stock_seleccionado:
 
     
     ax.plot(df_rendimientos.index, sigma_VaR_99_rolling_percent, label='99% Rolling VaR con volatilidad móvil', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, sigma_VaR_95_rolling_percent, label='95% Rolling VaR con volatilidad móvil', color="#440351", linewidth=2)
+    ax.plot(df_rendimientos.index, sigma_VaR_95_rolling_percent, label='95% Rolling VaR con volatilidad móvil', color="#ff1493", linewidth=2)
     #Configurar etiquetas y leyenda
     ax.set_title(f'Rolling VaR con volatilidad móvil - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
     ax.set_xlabel('Fecha', fontsize=11, color='#8892b0', fontfamily='monospace', fontweight='bold')
