@@ -189,37 +189,51 @@ Criterio utilizado:
 
 Un modelo es adecuado si presenta menos del 2.5% de violaciones, pero como lo vimos en la reunion con Jonathan esto no necesariamente era cierto o significa que nuestro modelo estaba mal.
 
----
+## Una vez explicado todo esto, nos gustaria revisar en comparacion la accion de AMAZON (AMZN) y asi ver como es que cambia nuestro Dashboard en comparacion a la Distribucion Normal vs T-student
 
-## Resultados e interpretación
+### Comparación de VaR
 
-Los resultados muestran que:
+Para un nivel de confianza del 95%, obtuvimos los siguientes resultados:
+- VaR Normal: aproximadamente -3.27%
+- VaR Histórico: -2.99%
+- VaR Monte Carlo (Normal): -3.26%
+- VaR t-Student: -3.27%
 
-- Los rendimientos no son normales
+En este nivel, ambos modelos (normal y t-Student) presentan resultados similares; sin embargo, el método histórico muestra que la normal tiende a subestimar ligeramente el riesgo, lo cual es cierto debido a todo lo que hemos visto este semestre
 
-- Existe curtosis elevada (riesgo extremo)
+Para un nivel de confianza del 99%:
+- VaR Normal: aproximadamente -4.67%
+- VaR Histórico: -5.46%
+- VaR Monte Carlo: -4.67%
+- VaR t-Student: -4.67%
 
-- El VaR paramétrico tiende a subestimar el riesgo
+En este caso, se observa que la distribución normal subestima significativamente el riesgo extremo en comparación con el método histórico, mientras que la t-Student ofrece una aproximación más consistente al comportamiento real, al capturar mejor las colas pesadas.
 
-- El ES es una medida más robusta
+### Expected Shortfall 
 
-- La distribución t-Student es más realista
+Los valores de ES obtenidos fueron:
+- ES 95%: -4.57%
+- ES 99%: -7.44%
+Estos resultados son coherentes con lo que hemos visto , donde el ES es más conservador que el VaR. Bajo la distribución t-Student, el ES refleja de mejor manera la severidad de las pérdidas en escenarios extremos, a diferencia de la normal, que tiende a suavizar estos eventos.
 
-- El riesgo es dinámico (no constante)
+### Violaciones en las graficas
+Para evaluar la calidad de los modelos, se analizaron las violaciones del VaR:
+#### Nivel 95%
+- Violaciones observadas: 157
+- Porcentaje: 4.21%
+- Valor esperado: 5%
 
----
+Aunque el modelo mejora respecto a la distribución normal, aún no cumple completamente con el criterio del proyecto (<2.5%), lo que indica que el riesgo sigue siendo parcialmente subestimado pero como lo vimos con Jonathan esto no siempre significa que este mal.
 
-## Conclusiones
+#### Nivel 99%
+- Violaciones observadas: 62
+ - Porcentaje: 1.66%
+- Valor esperado: 1%
 
-- El supuesto de normalidad no es adecuado para rendimientos diarios
+En este caso, la distribución t-Student presenta un mejor desempeño, acercándose al valor esperado y cumpliendo con el criterio establecido, lo que indica una mejor estimación del riesgo extremo.
 
-- Es necesario modelar colas pesadas
+### Análisis dinámico (Rolling Windows)
 
-- El VaR es útil pero incompleto
+El análisis mediante ventanas móviles mostró que tanto el VaR como el ES evolucionan en el tiempo, respondiendo a cambios en la volatilidad del mercado. En este contexto, la distribución t-Student logra adaptarse mejor a periodos de alta incertidumbre, reflejando incrementos en el riesgo de manera más realista que la distribución normal.
 
-- El ES es una mejor medida de riesgo
 
-- El uso de rolling windows mejora la estimación
-- El backtesting es fundamental para validar modelos
-
----
