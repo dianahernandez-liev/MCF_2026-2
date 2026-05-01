@@ -761,10 +761,10 @@ if stock_seleccionado:
     
     st.subheader("Evaluación de Violaciones del VaR")
     datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_95_rolling], axis=1).dropna()
-        datos.columns = ["Rendimiento", "Medida_Riesgo"]
-        violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
-        total_v = len(datos)
-        porcentaje_violaciones = (violaciones / total) * 100
+    datos.columns = ["Rendimiento", "Medida_Riesgo"]
+    violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
+    total_v = len(datos)
+    porcentaje_violaciones = (violaciones / total) * 100
     """
     contador_ = 0
     for i in range(len(sigma_VaR_95_rolling)-1, -1, -1):
