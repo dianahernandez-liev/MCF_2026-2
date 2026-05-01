@@ -761,7 +761,7 @@ if stock_seleccionado:
     # Mostrar la figura
     st.pyplot(fig)
     
-    st.subheader("Evaluación de Violaciones del VaR")
+    st.subheader("Evaluación de Violaciones del 95% VaR")
     datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_95_rolling], axis=1).dropna()
     datos.columns = ["Rendimiento", "Medida_Riesgo"]
     violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
@@ -774,7 +774,7 @@ if stock_seleccionado:
     col2.metric("Violaciones(%)", f"{porcentaje_violaciones:.2f}%")
     col3.metric("Total de Días", f"{total_v}")
 
-    st.subheader("Evaluación de Violaciones del VaR")
+    st.subheader("Evaluación de Violaciones del 99% VaR")
     
     datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_99_rolling], axis=1).dropna()
     datos.columns = ["Rendimiento", "Medida_Riesgo"]
