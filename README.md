@@ -14,9 +14,9 @@ Los datos utilizados corresponden a precios de cierre ajustados de las siguiente
 
 Los datos son obtenidos mediante la librería `yfinance`, con un rango temporal desde 2010 hasta la fecha actual.
 
-A partir de los precios, se calculan rendimientos simples diarios ; Este tipo de rendimiento es adecuado para análisis descriptivo y coincide con la implementación del código.
+A partir de los precios, se calculan rendimientos simples diarios. Este tipo de rendimiento es adecuado para análisis descriptivo y coincide con la implementación del código.
 
-Segun lo que vimos en todo el semestre hasta ahora, com los rendimientos debiamos de ser muy cuidadosos debido a sus distribuciones pues los rendimiento tienen kas siguienres propiedades:
+Segun lo que vimos en todo el semestre hasta ahora, con los rendimientos debiamos de ser muy cuidadosos debido a sus distribuciones pues los rendimiento tienen las siguientes propiedades:
 - No siguen una distribución normal
 - Presentan colas pesadas
 - Pueden ser asimétricos
@@ -30,8 +30,7 @@ Representa el rendimiento promedio diario. Sin embargo, en gestión de riesgo ti
 El sesgo mide la asimetría de la distribución:
 
 \[
-
-\beta = \frac{E[(X - E[X])^3]}{(E[(X - E[X])^2])^{3/2}}
+$\beta = \frac{E[(X - E[X])^3]}{(E[(X - E[X])^2])^{3/2}}$
 
 \]
 - Sesgo positivo: cola derecha más pesada (ganancias extremas)
