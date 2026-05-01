@@ -790,12 +790,12 @@ if stock_seleccionado:
     """
     datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_99_rolling], axis=1).dropna()
     datos.columns = ["Rendimiento", "Medida_Riesgo"]
-    violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
-    total_v = len(datos)
-    porcentaje_violaciones = (violaciones / total) * 100
+    violaciones_9 = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
+    total_v9 = len(datos)
+    porcentaje_violaciones_9 = (violaciones / total_v9) * 100
 
     col1, col2, col3= st.columns(3)
-    col1.metric("Violaciones", f"{contador9}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
-    col3.metric("Total de Días", f"{len(sigma_VaR_99_rolling)}")
+    col1.metric("Violaciones", f"{violaciones_9}")
+    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones_9:.2f}%")
+    col3.metric("Total de Días", f"{total_v9}")
     
