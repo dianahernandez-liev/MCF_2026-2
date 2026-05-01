@@ -764,7 +764,7 @@ if stock_seleccionado:
     datos.columns = ["Rendimiento", "Medida_Riesgo"]
     violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
     total_v = len(datos)
-    porcentaje_violaciones = (violaciones / total) * 100
+    porcentaje_violaciones = (violaciones / total_v) * 100
     """
     contador_ = 0
     for i in range(len(sigma_VaR_95_rolling)-1, -1, -1):
@@ -792,7 +792,7 @@ if stock_seleccionado:
     datos.columns = ["Rendimiento", "Medida_Riesgo"]
     violaciones_9 = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
     total_v9 = len(datos)
-    porcentaje_violaciones_9 = (violaciones / total_v9) * 100
+    porcentaje_violaciones_9 = (violaciones_9 / total_v9) * 100
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{violaciones_9}")
