@@ -534,63 +534,165 @@ if stock_seleccionado:
     for i in range(len(hVaR_95_rolling_percent)-1, -1, -1):
         if df_rendimientos[stock_seleccionado].iloc[i] < hVaR_99_rolling.iloc[i]:
             contador_2 += 1
-    # Calcular porcentaje de violaciones
-    porcentaje_violaciones = (contador_2 / len(df_rendimientos[stock_seleccionado])) * 100
+      # ============================================================
+    # INCISO E) EVALUACIÓN DE VIOLACIONES VaR Y ES
+    # ============================================================
 
-    col1, col2, col3= st.columns(3)
-    col1.metric("Violaciones", f"{contador_2}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
-    col3.metric("Total de Días", f"{len(df_rendimientos[stock_seleccionado])}")
+    st.header("Inciso e) Evaluación de Violaciones del VaR y ES")
+
+    rend = df_rendimientos[stock_seleccionado].dropna()
+    ventana = 252
+
+    # ------------------------------------------------------------
+    # Funciones auxiliares
+    # ------------------------------------------------------------
+
+    def rolling_var_historico(serie, alpha, ventana=252):
+        """
+        Calcula VaR histórico rolling.
+        Para alpha = 0.95 usa cuantíl 0.05.
+        Para alpha = 0.99 usa cuantíl 0.01.
+        """
+        q = 1 - alpha
+        return serie.rolling(window=ventana).quantile(q).shift(1)
 
 
-     ##Rolling Windows VaR con volatilidad constante
-    st.header("Rolling Windows VaR con Volatilidad Móvil")
-    sigma_VaR_95_rolling = df_rendimientos[stock_seleccionado].rolling(window=252).std() * norm.ppf(1-0.95)
-    sigma_VaR_95_rolling_percent=sigma_VaR_95_rolling*100
-    sigma_VaR_99_rolling = df_rendimientos[stock_seleccionado].rolling(window=252).std() * norm.ppf(1-0.99)
-    sigma_VaR_99_rolling_percent=sigma_VaR_99_rolling*100
+    def rolling_es_historico(serie, alpha, ventana=252):
+        """
+        Calcula ES histórico rolling.
+        ES es el promedio de los rendimientos menores o iguales al VaR
+        dentro de cada ventana.
+        """
+        q = 1 - alpha
 
-    # Crear la figura y el eje
-    fig, ax = plt.subplots(figsize=(13, 5), facecolor='#0a0e27')
-    ax.set_facecolor('#0f142e')
-    ax.plot(df_rendimientos[stock_seleccionado].index, df_rendimientos[stock_seleccionado] * 100, label='Retornos diarios (%)', color='#34edf3', alpha=0.5)
+        def es_func(x):
+            var = np.quantile(x, q)
+            return x[x <= var].mean()
 
-    
-    ax.plot(df_rendimientos.index, sigma_VaR_99_rolling_percent, label='99% Rolling VaR con volatilidad constante', color='#00ff88', linewidth=2)
-    ax.plot(df_rendimientos.index, sigma_VaR_95_rolling_percent, label='95% Rolling VaR con volatilidad constante', color="#440351", linewidth=2)
-    #Configurar etiquetas y leyenda
-    ax.set_title(f'VaR con volatilidad móvil - {stock_seleccionado}', fontsize=14, fontweight='bold', color='#00d4ff', fontfamily='monospace', pad=20)
-    ax.set_xlabel('Fecha', fontsize=11, color='#8892b0', fontfamily='monospace', fontweight='bold')
-    ax.set_ylabel('VaR (%)', fontsize=11, color='#8892b0', fontfamily='monospace', fontweight='bold')
-    ax.legend(loc='upper left', facecolor='#0f142e', edgecolor='#00d4ff')
-    ax.grid(True, alpha=0.2, color='white')
-    # Mostrar la figura
-    st.pyplot(fig)
-    
-    st.subheader("Evaluación de Violaciones del VaR al 95 con volatilidad móvil")
-    
-    contador_ = 0
-    for i in range(len(sigma_VaR_95_rolling)-1, -1, -1):
-        if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_95_rolling.iloc[i]:
-            contador_ += 1
-    # Calcular porcentaje de violaciones
-    porcentaje_violaciones = (contador_ / len(df_rendimientos[stock_seleccionado])) * 100
+        return serie.rolling(window=ventana).apply(es_func, raw=False).shift(1)
 
-    col1, col2, col3= st.columns(3)
-    col1.metric("Violaciones", f"{contador_}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
-    col3.metric("Total de Días", f"{len(df_rendimientos[stock_seleccionado])}")
 
-    st.subheader("Evaluación de Violaciones del VaR al 99 con volatilidad móvil")
-    
-    contador9 = 0
-    for i in range(len(sigma_VaR_99_rolling)-1, -1, -1):
-        if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_99_rolling.iloc[i]:
-            contador9 += 1
-    # Calcular porcentaje de violaciones
-    porcentaje_violaciones = (contador9 / len(df_rendimientos[stock_seleccionado])) * 100
+    def rolling_var_normal(serie, alpha, ventana=252):
+        """
+        Calcula VaR paramétrico rolling asumiendo distribución normal.
+        """
+        media = serie.rolling(window=ventana).mean()
+        sigma = serie.rolling(window=ventana).std()
+        q = norm.ppf(1 - alpha)
+        return (media + q * sigma).shift(1)
 
-    col1, col2, col3= st.columns(3)
-    col1.metric("Violaciones", f"{contador9}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
-    col3.metric("Total de Días", f"{len(df_rendimientos[stock_seleccionado])}")
+
+    def rolling_es_normal(serie, alpha, ventana=252):
+        """
+        Calcula ES paramétrico rolling asumiendo distribución normal.
+
+        Fórmula:
+        ES_alpha = media - sigma * phi(z_alpha)/(1-alpha)
+
+        donde z_alpha = Phi^{-1}(1-alpha)
+        """
+        media = serie.rolling(window=ventana).mean()
+        sigma = serie.rolling(window=ventana).std()
+        q = 1 - alpha
+        z = norm.ppf(q)
+
+        es = media - sigma * (norm.pdf(z) / q)
+
+        return es.shift(1)
+
+
+    def calcular_violaciones(serie, medida_riesgo):
+        """
+        Compara el rendimiento real contra la medida de riesgo.
+        Hay violación si rendimiento < VaR o rendimiento < ES.
+        """
+        datos = pd.concat([serie, medida_riesgo], axis=1).dropna()
+        datos.columns = ["Rendimiento", "Medida_Riesgo"]
+
+        violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
+        total = len(datos)
+        porcentaje = (violaciones / total) * 100
+
+        return violaciones, porcentaje, total
+
+
+    # ------------------------------------------------------------
+    # Cálculo para alpha = 0.95 y alpha = 0.99
+    # ------------------------------------------------------------
+
+    niveles_confianza = [0.95, 0.99]
+    resultados_violaciones = []
+
+    for alpha in niveles_confianza:
+
+        # VaR y ES histórico
+        VaR_hist = rolling_var_historico(rend, alpha, ventana)
+        ES_hist = rolling_es_historico(rend, alpha, ventana)
+
+        # VaR y ES paramétrico normal
+        VaR_norm = rolling_var_normal(rend, alpha, ventana)
+        ES_norm = rolling_es_normal(rend, alpha, ventana)
+
+        # Violaciones VaR histórico
+        v_var_hist, p_var_hist, total_var_hist = calcular_violaciones(rend, VaR_hist)
+
+        # Violaciones ES histórico
+        v_es_hist, p_es_hist, total_es_hist = calcular_violaciones(rend, ES_hist)
+
+        # Violaciones VaR normal
+        v_var_norm, p_var_norm, total_var_norm = calcular_violaciones(rend, VaR_norm)
+
+        # Violaciones ES normal
+        v_es_norm, p_es_norm, total_es_norm = calcular_violaciones(rend, ES_norm)
+
+        resultados_violaciones.append({
+            "Nivel de confianza": f"{alpha:.1%}",
+            "Método": "Histórico",
+            "Medida": "VaR",
+            "Violaciones": v_var_hist,
+            "Total evaluado": total_var_hist,
+            "Porcentaje de violaciones": f"{p_var_hist:.2f}%"
+        })
+
+        resultados_violaciones.append({
+            "Nivel de confianza": f"{alpha:.1%}",
+            "Método": "Histórico",
+            "Medida": "ES",
+            "Violaciones": v_es_hist,
+            "Total evaluado": total_es_hist,
+            "Porcentaje de violaciones": f"{p_es_hist:.2f}%"
+        })
+
+        resultados_violaciones.append({
+            "Nivel de confianza": f"{alpha:.1%}",
+            "Método": "Paramétrico Normal",
+            "Medida": "VaR",
+            "Violaciones": v_var_norm,
+            "Total evaluado": total_var_norm,
+            "Porcentaje de violaciones": f"{p_var_norm:.2f}%"
+        })
+
+        resultados_violaciones.append({
+            "Nivel de confianza": f"{alpha:.1%}",
+            "Método": "Paramétrico Normal",
+            "Medida": "ES",
+            "Violaciones": v_es_norm,
+            "Total evaluado": total_es_norm,
+            "Porcentaje de violaciones": f"{p_es_norm:.2f}%"
+        })
+
+
+    # ------------------------------------------------------------
+    # Tabla final del inciso e)
+    # ------------------------------------------------------------
+
+    tabla_violaciones = pd.DataFrame(resultados_violaciones)
+
+    st.subheader("Tabla de violaciones VaR y ES")
+
+    st.dataframe(tabla_violaciones, use_container_width=True)
+
+    st.info(
+        "Una buena estimación debería generar un porcentaje de violaciones menor al 2.5%, "
+        "según la indicación del proyecto."
+    )
