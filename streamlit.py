@@ -760,27 +760,39 @@ if stock_seleccionado:
     st.pyplot(fig)
     
     st.subheader("Evaluación de Violaciones del VaR")
-    
+    datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_95_rolling], axis=1).dropna()
+        datos.columns = ["Rendimiento", "Medida_Riesgo"]
+        violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
+        total_v = len(datos)
+        porcentaje_violaciones = (violaciones / total) * 100
+    """
     contador_ = 0
     for i in range(len(sigma_VaR_95_rolling)-1, -1, -1):
         if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_95_rolling.iloc[i]:
             contador_ += 1
     # Calcular porcentaje de violaciones
     porcentaje_violaciones = (contador_ / len(sigma_VaR_95_rolling.dropna())) * 100
+    """
 
     col1, col2, col3= st.columns(3)
-    col1.metric("Violaciones", f"{contador_}")
+    col1.metric("Violaciones", f"{violaciones}")
     col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
-    col3.metric("Total de Días", f"{len(sigma_VaR_95_rolling)}")
+    col3.metric("Total de Días", f"{len(total_v)}")
 
     st.subheader("Evaluación de Violaciones del VaR")
-    
+    """
     contador9 = 0
     for i in range(len(sigma_VaR_99_rolling)-1, -1, -1):
         if df_rendimientos[stock_seleccionado].iloc[i] < sigma_VaR_99_rolling.iloc[i]:
             contador9 += 1
     # Calcular porcentaje de violaciones
     porcentaje_violaciones = (contador9 / len(sigma_VaR_99_rolling.dropna())) * 100
+    """
+    datos = pd.concat([df_rendimientos[stock_seleccionado], sigma_VaR_99_rolling], axis=1).dropna()
+    datos.columns = ["Rendimiento", "Medida_Riesgo"]
+    violaciones = (datos["Rendimiento"] < datos["Medida_Riesgo"]).sum()
+    total_v = len(datos)
+    porcentaje_violaciones = (violaciones / total) * 100
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{contador9}")
