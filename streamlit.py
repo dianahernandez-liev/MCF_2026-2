@@ -769,7 +769,7 @@ if stock_seleccionado:
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{violaciones}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones:.2f}%")
+    col2.metric("Porcentaje de \n Violaciones", f"{porcentaje_violaciones:.2f}%")
     col3.metric("Total de Días", f"{total_v}")
 
     st.subheader("Evaluación de Violaciones del VaR")
@@ -782,6 +782,6 @@ if stock_seleccionado:
 
     col1, col2, col3= st.columns(3)
     col1.metric("Violaciones", f"{violaciones_9}")
-    col2.metric("Porcentaje de Violaciones", f"{porcentaje_violaciones_9:.2f}%")
+    col2.metric("Porcentaje de \n Violaciones", f"{porcentaje_violaciones_9:.2f}%")
     col3.metric("Total de Días", f"{total_v9}")
     
