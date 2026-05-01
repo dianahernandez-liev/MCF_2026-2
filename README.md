@@ -38,11 +38,9 @@ $\beta = \frac{E[(X - E[X])^3]}{(E[(X - E[X])^2])^{3/2}}$
 
 ### Curtosis (Kurtosis)
 La curtosis mide la concentración y el peso de las colas:
-\[
 
-\kappa = \frac{E[(X - E[X])^4]}{(E[(X - E[X])^2])^2}
+$\kappa = \frac{E[(X - E[X])^4]}{(E[(X - E[X])^2])^2}$
 
-\]
 - Normal: κ = 3
 - κ > 3: colas pesadas
 En mercados financieros segun lo vimos con el profesor sucede que :
@@ -97,11 +95,9 @@ Se generan escenarios simulados a partir de una distribución ajustada, en nuest
 
 ### Varianza
 
-\[
 
-Var(L) = E[(L - E[L])^2]
+$Var(L) = E[(L - E[L])^2]$
 
-\]
 
 - El problema con la varianza es que es simétrica (no distingue pérdidas de ganancias) esto es una cita de las notas del profesor
 
@@ -109,11 +105,9 @@ Var(L) = E[(L - E[L])^2]
 
 El VaR es el cuantil de la distribución de pérdidas segun como lo vimos en clase
 
-\[
 
-VaR_\alpha(L) = q_\alpha(L)
+$VaR_\alpha(L) = q_\alpha(L)$
 
-\]
 
 > Es la pérdida máxima esperada con nivel de confianza α.
 
@@ -122,21 +116,17 @@ VaR_\alpha(L) = q_\alpha(L)
 
 ### Expected Shortfall 
 
-\[
 
-ES_\alpha(L) = E[L \mid L \geq VaR_\alpha]
+$ES_\alpha(L) = E[L \mid L \geq VaR_\alpha]$
 
-\]
 
 Es la pérdida promedio en los peores escenarios.
 
 Propiedad importante:
 
-\[
 
-ES_\alpha \geq VaR_\alpha
+$ES_\alpha \geq VaR_\alpha$
 
-\]
 
 
 ### Distribución Normal
@@ -170,11 +160,9 @@ Esto permite:
 
 Se evalúa la calidad del modelo mediante:
 
-\[
 
-\text{Violación} = \{R_t < VaR_t\}
+$\text{Violación} = \{R_t < VaR_t\}$
 
-\]
 
 Para un nivel de confianza α:
 
