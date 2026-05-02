@@ -1,6 +1,6 @@
 # MCF_2026-2
 Proyecto de Métodos Cuantitativos en Finanzas
-###Integrantes:
+### Integrantes:
 -Hernández Liévanos Diana Estefanía
 -Juárez Escalante José Eduardo
 -Salinas González Carlos
