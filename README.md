@@ -1,9 +1,10 @@
 # MCF_2026-2
 Proyecto de Métodos Cuantitativos en Finanzas
 ### Integrantes:
-- Hernández Liévanos Diana Estefanía
-- Juárez Escalante José Eduardo
-- Salinas González Carlos
+- Hernandez Lievanos Diana Estefania
+- Juarez Escalante Jose Eduardo
+- Salinas Gonzalez Carlos
+- Zapata Rosas Angel Abiran
 
 Se analizan series históricas de precios de acciones obtenidas desde Yahoo Finance, transformadas en rendimientos diarios, con el objetivo de estudiar sus propiedades estadísticas y evaluar distintas metodologías de medición de riesgo.
 
